@@ -209,5 +209,82 @@ async def get_analytics_metrics():
 async def get_remediation_queue():
     return state.remediation_tasks
 
+# --- Defensive Inbox Guardian Endpoints ---
+import json
+
+class DefenseState:
+    def __init__(self):
+        self.monitored_stream = []
+        try:
+            with open("synthetic_dataset.json", "r") as f:
+                self.dataset = json.load(f)
+        except Exception:
+            self.dataset = []
+        self.dataset_index = 0
+
+defense_state = DefenseState()
+
+class EmailScanRequest(BaseModel):
+    sender_address: str
+    domain_age_days: int
+    spf_alignment: str
+    urgency_keywords_count: int
+    contains_malicious_redirection_link: bool
+
+@app.post("/api/v1/defense/scan")
+async def scan_email(req: EmailScanRequest):
+    # Domain Heuristic Classification Logic
+    classification = "SAFE"
+    reasoning = "Domain is established, SPF records align, and no urgent/malicious traits detected."
+    
+    if req.domain_age_days < 30 and req.urgency_keywords_count > 3:
+        classification = "HIGH_RISK_SPAM"
+        reasoning = f"CRITICAL: Domain is newly registered ({req.domain_age_days} days old) combined with high-urgency language ({req.urgency_keywords_count} keywords). Likely a zero-day phishing attack."
+    elif req.contains_malicious_redirection_link or req.spf_alignment == "FAIL":
+        classification = "SUSPICIOUS"
+        reasoning = f"WARNING: Structural anomalies detected. SPF Alignment: {req.spf_alignment}. Malicious Link: {req.contains_malicious_redirection_link}."
+    
+    return {
+        "classification": classification,
+        "reasoning": reasoning,
+        "structural_score": random.randint(10, 40) if classification != "SAFE" else random.randint(80, 100)
+    }
+
+@app.get("/api/v1/defense/stream")
+async def get_defense_stream():
+    # Simulate receiving a new email from the dataset
+    if defense_state.dataset:
+        new_email = defense_state.dataset[defense_state.dataset_index % len(defense_state.dataset)]
+        defense_state.dataset_index += 1
+        
+        # We process the raw email through our heuristic engine for the UI
+        scan_req = EmailScanRequest(**new_email)
+        
+        classification = "SAFE"
+        reasoning = "Domain is established, SPF records align, and no urgent/malicious traits detected."
+        
+        if scan_req.domain_age_days < 30 and scan_req.urgency_keywords_count > 3:
+            classification = "HIGH_RISK_SPAM"
+            reasoning = f"CRITICAL: Domain is newly registered ({scan_req.domain_age_days} days old) combined with high-urgency language ({scan_req.urgency_keywords_count} keywords). Likely a zero-day phishing attack."
+        elif scan_req.contains_malicious_redirection_link or scan_req.spf_alignment == "FAIL":
+            classification = "SUSPICIOUS"
+            reasoning = f"WARNING: Structural anomalies detected. SPF Alignment: {scan_req.spf_alignment}. Malicious Link: {scan_req.contains_malicious_redirection_link}."
+        
+        event = {
+            "time": datetime.now().strftime("%H:%M:%S"),
+            "sender": new_email["sender_address"],
+            "subject": new_email["subject"],
+            "domain_age": new_email["domain_age_days"],
+            "structural_score": new_email["structural_score"],
+            "classification": classification,
+            "reasoning": reasoning
+        }
+        
+        defense_state.monitored_stream.insert(0, event)
+        if len(defense_state.monitored_stream) > 20:
+            defense_state.monitored_stream = defense_state.monitored_stream[:20]
+            
+    return defense_state.monitored_stream
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
