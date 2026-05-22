@@ -10,7 +10,9 @@ from pydantic import BaseModel
 import uvicorn
 
 app = FastAPI(title="Phish Shield AI Simulation Engine")
-templates = Jinja2Templates(directory="templates")
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 # --- In-Memory State ---
 DEPARTMENTS = ["Finance", "HR", "Engineering", "Sales"]
@@ -71,7 +73,7 @@ class LaunchRequest(BaseModel):
 # --- Endpoints ---
 @app.get("/", response_class=HTMLResponse)
 async def serve_dashboard(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index.html")
 
 @app.post("/api/v1/campaigns/generate", response_model=AIGeneratedTemplate)
 async def generate_campaign(req: CampaignGenRequest):
