@@ -391,22 +391,6 @@
             </form>
 
             <div class="error-msg" id="error-msg">Invalid credentials. Please try again.</div>
-
-            <div class="demo-creds">
-                <div class="title">Demo Credentials</div>
-                <div class="cred-row" onclick="fillCreds('admin','phishshield2024')">
-                    <span>admin / phishshield2024</span>
-                    <span class="role">Super Admin</span>
-                </div>
-                <div class="cred-row" onclick="fillCreds('security','defender123')">
-                    <span>security / defender123</span>
-                    <span class="role">Security Team</span>
-                </div>
-                <div class="cred-row" onclick="fillCreds('demo','demo')">
-                    <span>demo / demo</span>
-                    <span class="role">Demo User</span>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -470,13 +454,6 @@
         drawParticles();
         window.addEventListener('resize', initParticles);
 
-        // Fill credentials
-        function fillCreds(user, pass) {
-            document.getElementById('username').value = user;
-            document.getElementById('password').value = pass;
-            document.getElementById('username').focus();
-        }
-
         // Login handler
         async function handleLogin(e) {
             e.preventDefault();
@@ -501,6 +478,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
+                    localStorage.setItem('userRole', data.role);
                     btnText.textContent = '✓ Authenticated — Redirecting...';
                     btnText.style.display = 'inline';
                     spinner.style.display = 'none';

@@ -116,7 +116,8 @@
             <div class="overflow-hidden w-48 text-[10px] text-blue-300 font-mono"><div id="insight-ticker" class="ticker-content">Initializing AI Insights...</div></div>
         </div>
         <button onclick="startDemoMode()" id="demo-mode-btn" class="demo-btn">⚡ Demo Mode</button>
-        <div class="flex items-center space-x-2 text-[10px] font-mono text-gray-500">
+        <div id="role-badge" class="hidden lg:flex items-center border border-white/10 bg-white/5 rounded px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-2"></div>
+        <div class="flex items-center space-x-2 text-[10px] font-mono text-gray-500 ml-3">
             <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span><span class="text-emerald-400">LIVE</span></div>
             <div id="live-clock" class="text-gray-400">--:--:--</div>
         </div>
@@ -328,6 +329,22 @@ const canvas=document.getElementById('particles-bg'),ctx2d=canvas.getContext('2d
 function initP(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;particles=[];const n=Math.min(60,Math.floor(window.innerWidth/25));for(let i=0;i<n;i++)particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,o:Math.random()*.4+.08})}
 function drawP(){ctx2d.clearRect(0,0,canvas.width,canvas.height);for(let i=0;i<particles.length;i++){const p=particles[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;ctx2d.beginPath();ctx2d.arc(p.x,p.y,p.r,0,Math.PI*2);ctx2d.fillStyle=`rgba(59,130,246,${p.o})`;ctx2d.fill();for(let j=i+1;j<particles.length;j++){const q=particles[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx2d.beginPath();ctx2d.moveTo(p.x,p.y);ctx2d.lineTo(q.x,q.y);ctx2d.strokeStyle=`rgba(59,130,246,${.04*(1-d/100)})`;ctx2d.lineWidth=.5;ctx2d.stroke()}}}requestAnimationFrame(drawP)}
 initP();drawP();window.addEventListener('resize',initP);
+
+// ═══ ROLE BASED ACCESS ═══
+const userRole = localStorage.getItem('userRole') || 'Super Admin';
+document.addEventListener("DOMContentLoaded", () => {
+    const roleBadge = document.getElementById('role-badge');
+    if (roleBadge) roleBadge.textContent = userRole;
+
+    if (userRole === 'Security Team') {
+        document.getElementById('tab-training').style.display = 'none';
+        document.getElementById('demo-mode-btn').style.display = 'none';
+    } else if (userRole === 'Demo User') {
+        document.getElementById('tab-campaign').style.display = 'none';
+        document.getElementById('tab-guardian').style.display = 'none';
+        setTimeout(startDemoMode, 1500);
+    }
+});
 
 // ═══ STATE ═══
 let currentVector='Fear',currentUrgency='Medium',lastDefReason='';
