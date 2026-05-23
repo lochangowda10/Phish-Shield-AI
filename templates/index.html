@@ -179,7 +179,7 @@
 </nav>
 
 <!-- ═══════════ VIEW 1: DASHBOARD ═══════════ -->
-<div id="view-dashboard" class="flex-1 grid grid-cols-12 gap-2 p-2 overflow-hidden z-10">
+<div id="view-dashboard" class="flex-1 grid grid-cols-12 gap-2 p-2 overflow-y-auto z-10">
     <!-- LEFT -->
     <div class="col-span-3 flex flex-col gap-2">
         <!-- Threat Globe + Org Score -->
@@ -211,7 +211,7 @@
             </div>
         </div>
         <!-- Dept Vulnerability -->
-        <div class="glass p-4 flex-1">
+        <div class="glass p-4 flex-1" style="min-height: 220px">
             <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-3 font-mono">Dept Vulnerability Index</div>
             <div id="dept-bars" class="space-y-2.5"></div>
         </div>
@@ -253,7 +253,7 @@
             </div>
         </div>
         <!-- Top Risk + Leaderboard -->
-        <div class="glass flex-1 flex overflow-hidden">
+        <div class="glass flex-1 flex overflow-hidden" style="min-height: 220px">
             <div class="flex-1 p-3 border-r border-white/5 overflow-hidden flex flex-col">
                 <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-mono flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-red-500 live-dot"></span>Top Risk Employees</div>
                 <div id="top-risk-list" class="flex-1 overflow-y-auto space-y-1 text-xs"><div class="text-gray-600 italic text-center mt-4">Loading...</div></div>
@@ -277,7 +277,7 @@
             </div>
         </div>
         <!-- Live Infiltration Log -->
-        <div class="glass p-3 flex-1 flex flex-col overflow-hidden">
+        <div class="glass p-3 flex-1 flex flex-col overflow-hidden" style="min-height: 220px">
             <div class="flex items-center justify-between mb-2 shrink-0">
                 <div class="text-[10px] text-gray-500 uppercase tracking-widest font-mono flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-red-500 live-dot"></span>Live Infiltration Log</div>
                 <span class="text-[9px] font-mono text-gray-600">REAL-TIME</span>
@@ -293,7 +293,7 @@
 </div>
 
 <!-- ═══════════ VIEW 2: CAMPAIGN ENGINE ═══════════ -->
-<div id="view-campaign" class="hidden flex-1 grid grid-cols-12 gap-2 p-2 overflow-hidden z-10">
+<div id="view-campaign" class="hidden flex-1 grid grid-cols-12 gap-2 p-2 overflow-y-auto z-10">
     <div class="col-span-4 flex flex-col gap-2">
         <div class="glass p-5 flex-1">
             <div class="text-[10px] text-blue-400 uppercase tracking-widest mb-4 font-mono font-bold border-b border-white/5 pb-2">AI Campaign Generator</div>
@@ -360,7 +360,7 @@
 </div>
 
 <!-- ═══════════ VIEW 3: INBOX GUARDIAN ═══════════ -->
-<div id="view-guardian" class="hidden flex-1 grid grid-cols-12 gap-2 p-2 overflow-hidden z-10">
+<div id="view-guardian" class="hidden flex-1 grid grid-cols-12 gap-2 p-2 overflow-y-auto z-10">
     <div class="col-span-8 glass p-4 flex flex-col overflow-hidden">
         <div class="flex items-center justify-between mb-3 shrink-0"><div class="text-[10px] text-gray-500 uppercase tracking-widest font-mono flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-indigo-400 live-dot"></span>Live Mail Stream Analyzer</div><div class="text-[9px] font-mono text-gray-600">HEURISTIC SCAN</div></div>
         <div class="flex-1 overflow-y-auto"><table class="w-full text-left"><thead class="sticky top-0 bg-cyber-card"><tr class="text-[9px] text-gray-600 uppercase tracking-widest border-b border-white/5"><th class="pb-2 pr-3">Time</th><th class="pb-2 pr-3">Sender</th><th class="pb-2 pr-3">Subject</th><th class="pb-2 pr-3 text-center">Age</th><th class="pb-2 pr-3 text-center">Score</th><th class="pb-2 text-right">Status</th></tr></thead><tbody id="defensive-scan-table" class="text-xs font-mono"></tbody></table></div>
@@ -373,7 +373,7 @@
 </div>
 
 <!-- ═══════════ VIEW 4: AWARENESS HUB ═══════════ -->
-<div id="view-training" class="hidden flex-1 grid grid-cols-12 gap-2 p-2 overflow-hidden z-10">
+<div id="view-training" class="hidden flex-1 grid grid-cols-12 gap-2 p-2 overflow-y-auto z-10">
     <div class="col-span-4 flex flex-col gap-2">
         <div class="glass p-5"><div class="text-[10px] text-amber-400 uppercase tracking-widest mb-4 font-mono font-bold">🏆 Cyber Awareness Champions</div><div id="full-leaderboard" class="space-y-2.5 text-sm"><div class="text-gray-600 italic text-center">Loading...</div></div></div>
         <div class="glass p-4 flex-1"><div class="text-[10px] text-gray-500 uppercase tracking-widest mb-4 font-mono">Cyber Badges</div><div class="grid grid-cols-3 gap-2"><div class="text-center p-2 rounded-lg bg-white/[0.02] border border-white/5"><div class="text-xl mb-1">🛡️</div><div class="text-[9px] text-blue-400 font-bold">Defender</div><div class="text-[7px] text-gray-600">3+ reports</div></div><div class="text-center p-2 rounded-lg bg-white/[0.02] border border-white/5"><div class="text-xl mb-1">🎯</div><div class="text-[9px] text-purple-400 font-bold">Hunter</div><div class="text-[7px] text-gray-600">6+ reports</div></div><div class="text-center p-2 rounded-lg bg-white/[0.02] border border-white/5"><div class="text-xl mb-1">🔒</div><div class="text-[9px] text-emerald-400 font-bold">Guardian</div><div class="text-[7px] text-gray-600">10+ reports</div></div><div class="text-center p-2 rounded-lg bg-white/[0.02] border border-white/5"><div class="text-xl mb-1">⚡</div><div class="text-[9px] text-amber-400 font-bold">Vigilant</div><div class="text-[7px] text-gray-600">7-day streak</div></div><div class="text-center p-2 rounded-lg bg-white/[0.02] border border-white/5"><div class="text-xl mb-1">🧠</div><div class="text-[9px] text-cyan-400 font-bold">Analyst</div><div class="text-[7px] text-gray-600">100% quiz</div></div><div class="text-center p-2 rounded-lg bg-white/[0.02] border border-white/5"><div class="text-xl mb-1">🏅</div><div class="text-[9px] text-red-400 font-bold">Champion</div><div class="text-[7px] text-gray-600">Top of dept</div></div></div></div>
