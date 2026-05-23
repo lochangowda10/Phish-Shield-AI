@@ -706,6 +706,16 @@ async def get_quiz_question(index: int = 0):
     q = QUIZ_BANK[index % len(QUIZ_BANK)]
     return q
 
+@app.get("/api/v1/debug/env")
+async def debug_env():
+    key = os.environ.get("GEMINI_API_KEY", "")
+    return {
+        "gemini_api_key_configured": len(key) > 0,
+        "key_length": len(key),
+        "key_prefix": key[:4] if len(key) > 4 else ""
+    }
+
+
 # ═══════════════════════════════════════════════════════════
 # DEFENSIVE INBOX GUARDIAN
 # ═══════════════════════════════════════════════════════════
