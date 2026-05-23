@@ -135,7 +135,7 @@
         <button onclick="startDemoMode()" id="demo-mode-btn" class="demo-btn">⚡ Demo Mode</button>
         <div id="role-badge" class="hidden lg:flex items-center border border-white/10 bg-white/5 rounded px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-2"></div>
         <div class="flex items-center space-x-2 text-[10px] font-mono text-gray-500 ml-3">
-            <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span><span class="text-emerald-400">LIVE</span></div>
+            <div class="flex items-center gap-1.5"><span id="live-status-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span><span class="text-emerald-400">LIVE</span></div>
             <div id="live-clock" class="text-gray-400">--:--:--</div>
         </div>
     </div>
@@ -423,7 +423,7 @@ async function launchSimulation(){const btn=document.getElementById('launch-btn'
 function triggerPhishingAlert(){document.getElementById('phishing-warning').classList.remove('hidden')}
 
 // ═══ DEMO MODE ═══
-async function startDemoMode(){const btn=document.getElementById('demo-mode-btn');btn.disabled=true;btn.textContent='⚡ RUNNING...';switchTab('dashboard');await fetch('/api/v1/demo/start',{method:'POST'});setTimeout(()=>{btn.disabled=false;btn.textContent='⚡ Demo Mode'},30000)}
+async function startDemoMode(){const btn=document.getElementById('demo-mode-btn');btn.disabled=true;btn.textContent='⚡ RUNNING...';document.getElementById('live-status-dot').classList.add('live-demo-pulse');switchTab('dashboard');await fetch('/api/v1/demo/start',{method:'POST'});setTimeout(()=>{btn.disabled=false;btn.textContent='⚡ Demo Mode';document.getElementById('live-status-dot').classList.remove('live-demo-pulse');},30000)}
 
 // ═══ QUIZ (Multi-Question from API) ═══
 let quizIndex=0,quizScore=0,quizTotal=0;
