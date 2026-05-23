@@ -709,10 +709,38 @@ async def get_quiz_question(index: int = 0):
 @app.get("/api/v1/debug/env")
 async def debug_env():
     key = os.environ.get("GEMINI_API_KEY", "")
+    api_test_result = "not_run"
+    api_error = None
+    if key:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
+        payload = {
+            "contents": [{"parts": [{"text": "Hello"}]}]
+        }
+        try:
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=5) as response:
+                res_data = response.read().decode("utf-8")
+                res_json = json.loads(res_data)
+                api_test_result = "success"
+        except Exception as e:
+            api_test_result = "failed"
+            api_error = str(e)
+            if hasattr(e, 'read'):
+                try:
+                    api_error += f" | Response: {e.read().decode('utf-8')}"
+                except:
+                    pass
     return {
         "gemini_api_key_configured": len(key) > 0,
         "key_length": len(key),
-        "key_prefix": key[:4] if len(key) > 4 else ""
+        "key_prefix": key[:4] if len(key) > 4 else "",
+        "api_test_result": api_test_result,
+        "api_error": api_error
     }
 
 
