@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhishShield AI — Enterprise Cyber Defense Platform</title>
-    <meta name="description" content="AI-Driven Organizational Phishing Resilience Platform for enterprise SOC teams">
+    <title>PhishShield AI — AI-Powered Human Firewall Intelligence Platform</title>
+    <meta name="description" content="AI-Powered Human Firewall Intelligence Platform for Behavioral Cyber Defense">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -84,6 +84,23 @@
         .demo-btn{background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;padding:5px 14px;border-radius:6px;font-size:10px;font-weight:700;color:white;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:all .2s;font-family:'Inter',sans-serif}
         .demo-btn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(245,158,11,0.4)}
         .demo-btn:disabled{opacity:0.5;transform:none;cursor:not-allowed}
+        /* CRT Scanline Overlay */
+        body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px)}
+        /* Status badge glows */
+        .glow-badge-green{text-shadow:0 0 6px rgba(16,185,129,0.6)}
+        .glow-badge-amber{text-shadow:0 0 6px rgba(245,158,11,0.6)}
+        .glow-badge-red{text-shadow:0 0 6px rgba(239,68,68,0.6)}
+        /* Typing indicator */
+        .typing-dots span{animation:typingBounce 1.2s infinite;display:inline-block}
+        .typing-dots span:nth-child(2){animation-delay:.2s}
+        .typing-dots span:nth-child(3){animation-delay:.4s}
+        @keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+        /* Clickable inbox rows */
+        .inbox-row-clickable{cursor:pointer}
+        .inbox-row-clickable:hover{background:rgba(59,130,246,0.06)!important}
+        .inbox-row-selected{background:rgba(59,130,246,0.1)!important;border-left:2px solid #3b82f6}
+        /* LIVE pulse red for demo */
+        .live-demo-pulse{animation:pulse-dot 0.8s infinite;background:#ef4444!important}
     </style>
 </head>
 <body class="h-screen flex flex-col">
@@ -100,7 +117,7 @@
             </div>
             <div>
                 <div class="text-sm font-bold tracking-tight"><span class="text-white">PhishShield</span><span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400"> AI</span></div>
-                <div class="text-[9px] text-gray-600 uppercase tracking-widest font-mono">Enterprise Cyber Defense</div>
+                <div class="text-[9px] text-gray-600 uppercase tracking-widest font-mono">Human Firewall Intelligence</div>
             </div>
         </div>
         <div class="flex space-x-1 border-l border-white/5 pl-5">
@@ -173,24 +190,29 @@
     <!-- CENTER -->
     <div class="col-span-5 flex flex-col gap-2">
         <!-- Risk Chart -->
-        <div class="glass p-4" style="height:220px">
+        <div class="glass p-4" style="height:195px">
             <div class="flex justify-between items-center mb-2">
                 <div class="text-[10px] text-gray-500 uppercase tracking-widest font-mono">Department Risk Heatmap</div>
                 <div class="flex gap-1"><div class="status-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2)">● Low</div><div class="status-badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)">● Med</div><div class="status-badge" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)">● High</div></div>
             </div>
-            <div style="height:160px;position:relative"><canvas id="riskChart"></canvas></div>
+            <div style="height:140px;position:relative"><canvas id="riskChart"></canvas></div>
         </div>
-        <!-- Attack Flow -->
-        <div class="glass p-3" style="height:95px">
-            <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-mono">Live Attack Flow</div>
-            <div class="flex items-center justify-between">
-                <div class="flow-node"><div class="w-9 h-9 rounded-lg bg-blue-900/40 border border-blue-500/30 flex items-center justify-center"><svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8"/></svg></div><div class="text-[8px] text-blue-400 font-mono text-center">Sent<br><span id="flow-delivered" class="font-bold">0</span></div></div>
-                <div class="flow-connector"></div>
-                <div class="flow-node"><div class="w-9 h-9 rounded-lg bg-amber-900/40 border border-amber-500/30 flex items-center justify-center"><svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div><div class="text-[8px] text-amber-400 font-mono text-center">Clicks<br><span id="flow-clicks" class="font-bold">0</span></div></div>
-                <div class="flow-connector"></div>
-                <div class="flow-node"><div class="w-9 h-9 rounded-lg bg-red-900/40 border border-red-500/30 flex items-center justify-center"><svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div><div class="text-[8px] text-red-400 font-mono text-center">Breach<br><span id="flow-creds" class="font-bold">0</span></div></div>
-                <div class="flow-connector"></div>
-                <div class="flow-node"><div class="w-9 h-9 rounded-lg bg-emerald-900/40 border border-emerald-500/30 flex items-center justify-center"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><div class="text-[8px] text-emerald-400 font-mono text-center">Report<br><span id="flow-reported" class="font-bold">0</span></div></div>
+        <!-- Attack Propagation Simulator -->
+        <div class="glass p-4" style="height:120px">
+            <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-mono flex items-center justify-between">
+                <span>🔗 Attack Propagation Simulator</span>
+                <span id="prop-status-badge" class="status-badge" style="background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2)">CONTAINED</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 px-2">
+                <div class="flow-node" id="prop-1"><div class="w-8 h-8 rounded-full bg-blue-900/40 border border-blue-500/30 flex items-center justify-center text-xs" id="prop-icon-1">✉️</div><div class="text-[9px] text-blue-400 font-mono text-center mt-1" id="prop-text-1">Phishing<br>Received</div></div>
+                <div class="flow-connector" id="conn-1" style="background:rgba(255,255,255,0.1)"></div>
+                <div class="flow-node" id="prop-2"><div class="w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs opacity-50" id="prop-icon-2" style="transition:all 0.5s;">🖱️</div><div class="text-[9px] text-gray-600 font-mono text-center mt-1" id="prop-text-2">Link<br>Clicked</div></div>
+                <div class="flow-connector" id="conn-2" style="background:rgba(255,255,255,0.1)"></div>
+                <div class="flow-node" id="prop-3"><div class="w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs opacity-50" id="prop-icon-3" style="transition:all 0.5s;">🔑</div><div class="text-[9px] text-gray-600 font-mono text-center mt-1" id="prop-text-3">Creds<br>Stolen</div></div>
+                <div class="flow-connector" id="conn-3" style="background:rgba(255,255,255,0.1)"></div>
+                <div class="flow-node" id="prop-4"><div class="w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs opacity-50" id="prop-icon-4" style="transition:all 0.5s;">💸</div><div class="text-[9px] text-gray-600 font-mono text-center mt-1" id="prop-text-4">Finance<br>Breach</div></div>
+                <div class="flow-connector" id="conn-4" style="background:rgba(255,255,255,0.1)"></div>
+                <div class="flow-node" id="prop-5"><div class="w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs opacity-50" id="prop-icon-5" style="transition:all 0.5s;">🌐</div><div class="text-[9px] text-gray-600 font-mono text-center mt-1" id="prop-text-5">Lateral<br>Spread</div></div>
             </div>
         </div>
         <!-- Top Risk + Leaderboard -->
@@ -267,7 +289,35 @@
         <div class="glass p-4 flex-1 flex flex-col"><div class="text-[10px] text-gray-500 uppercase tracking-widest mb-3 font-mono">Simulated Phishing Email</div><div class="bg-black/40 rounded-lg border border-white/5 flex-1 overflow-hidden flex flex-col"><div class="px-4 py-3 border-b border-white/5"><div class="text-[10px] text-gray-600 font-mono mb-1">SUBJECT</div><div id="ai-subject" class="text-sm font-semibold text-amber-300">[Awaiting generation...]</div></div><div class="flex-1 overflow-y-auto p-4"><div id="ai-body" class="text-xs text-gray-300 font-mono leading-relaxed whitespace-pre-wrap">Configure parameters and click Generate AI Payload.</div></div></div></div>
     </div>
     <div class="col-span-3 flex flex-col gap-2">
-        <div class="glass p-4 flex-1"><div class="text-[10px] text-gray-500 uppercase tracking-widest mb-3 font-mono">Social Engineering Strategy</div><div class="bg-black/40 rounded-lg border border-purple-500/10 p-4 flex-1"><div id="strategy-text" class="text-xs text-gray-400 leading-relaxed italic">AI strategy analysis will appear here...</div></div></div>
+        <div class="glass p-4 flex-1 flex flex-col gap-3">
+            <div>
+                <div class="text-[10px] text-blue-400 uppercase tracking-widest mb-2 font-mono font-bold">🧬 Phishing DNA Profile</div>
+                <div class="bg-black/40 rounded-lg border border-white/5 p-3 space-y-2">
+                    <div>
+                        <div class="flex justify-between text-[9px] font-mono text-gray-400 mb-1"><span>FEAR / INTIMIDATION</span><span id="dna-fear">0%</span></div>
+                        <div class="risk-bar"><div class="risk-fill bg-red-500" id="dna-bar-fear" style="width:0%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[9px] font-mono text-gray-400 mb-1"><span>URGENCY / TIME-PRESSURE</span><span id="dna-urgency">0%</span></div>
+                        <div class="risk-bar"><div class="risk-fill bg-amber-500" id="dna-bar-urgency" style="width:0%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[9px] font-mono text-gray-400 mb-1"><span>AUTHORITY / TRUST</span><span id="dna-authority">0%</span></div>
+                        <div class="risk-bar"><div class="risk-fill bg-blue-500" id="dna-bar-authority" style="width:0%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[9px] font-mono text-gray-400 mb-1"><span>GREED / CURIOSITY</span><span id="dna-greed">0%</span></div>
+                        <div class="risk-bar"><div class="risk-fill bg-emerald-500" id="dna-bar-greed" style="width:0%"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col">
+                <div class="text-[10px] text-purple-400 uppercase tracking-widest mb-2 font-mono font-bold">🧠 AI Explanation</div>
+                <div class="bg-black/40 rounded-lg border border-purple-500/10 p-3 flex-1 overflow-y-auto">
+                    <div id="strategy-text" class="text-xs text-gray-400 leading-relaxed italic">AI explanation will appear here after generation...</div>
+                </div>
+            </div>
+        </div>
         <div class="glass p-4"><div class="text-[10px] text-gray-500 uppercase tracking-widest mb-3 font-mono">Simulated Phishing Portal</div><div class="bg-white rounded-lg p-4 text-gray-800"><div class="flex items-center gap-2 mb-3"><div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center"><span class="text-white text-[8px] font-bold">M</span></div><span class="text-xs font-semibold">Microsoft Sign In</span><div class="ml-auto flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-red-500"></div><div class="w-2 h-2 rounded-full bg-amber-500"></div><div class="w-2 h-2 rounded-full bg-green-500"></div></div></div><input type="email" placeholder="Email" class="w-full text-[11px] border border-gray-300 rounded px-2 py-1.5 mb-2 outline-none" readonly/><input type="password" placeholder="Password" class="w-full text-[11px] border border-gray-300 rounded px-2 py-1.5 mb-2 outline-none" readonly/><button class="w-full bg-blue-600 text-white text-[11px] py-1.5 rounded font-semibold" onclick="triggerPhishingAlert()">Sign in</button><div class="text-[9px] text-red-600 mt-2 hidden font-bold" id="phishing-warning">⚠️ SIMULATED PHISHING PAGE — Educational Demo Only</div></div></div>
     </div>
 </div>
@@ -365,7 +415,7 @@ Chart.defaults.color='#4b5563';Chart.defaults.font.family='JetBrains Mono';
 const riskChart=new Chart(document.getElementById('riskChart').getContext('2d'),{type:'bar',data:{labels:['Finance','HR','Eng','Sales','Legal','Mktg'],datasets:[{label:'Risk',data:[0,0,0,0,0,0],backgroundColor:['rgba(59,130,246,0.6)','rgba(139,92,246,0.6)','rgba(6,182,212,0.6)','rgba(16,185,129,0.6)','rgba(245,158,11,0.6)','rgba(236,72,153,0.6)'],borderColor:['#3b82f6','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ec4899'],borderWidth:1,borderRadius:6,borderSkipped:false,barPercentage:.65}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:600,easing:'easeOutQuart'},scales:{y:{beginAtZero:true,max:100,grid:{color:'rgba(255,255,255,0.03)'},ticks:{font:{size:9},color:'#374151'}},x:{grid:{display:false},ticks:{font:{size:9},color:'#6b7280'}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(10,11,20,0.95)',bodyFont:{family:'JetBrains Mono',size:11},padding:10,borderColor:'rgba(59,130,246,0.3)',borderWidth:1,callbacks:{label:c=>`Risk: ${c.parsed.y.toFixed(1)}/100`}}}}});
 
 // ═══ GENERATE PAYLOAD ═══
-async function generateAIPayload(){const btn=document.getElementById('gen-btn');btn.innerHTML='<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> GENERATING...';btn.disabled=true;try{const r=await fetch('/api/v1/campaigns/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({department:document.getElementById('dept-select').value,urgency:currentUrgency,psychological_vector:currentVector})});const d=await r.json();document.getElementById('ai-subject').textContent=d.subject_line;document.getElementById('attack-type').textContent=d.attack_type;document.getElementById('strategy-text').textContent=d.social_engineering_strategy;const si=document.getElementById('si-badge');si.textContent=d.sophistication_index+'/10';si.style.color=d.sophistication_index>=8?'#ef4444':d.sophistication_index>=5?'#f59e0b':'#3b82f6';const b=document.getElementById('ai-body');b.textContent='';let i=0;const t=setInterval(()=>{if(i<d.body_content.length)b.textContent+=d.body_content.charAt(i++);else clearInterval(t)},5);const l=document.getElementById('launch-btn');l.disabled=false;l.className='w-full py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest border border-emerald-500/40 bg-emerald-600/15 text-emerald-400 hover:bg-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer'}catch(e){}btn.innerHTML='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Generate AI Payload';btn.disabled=false}
+async function generateAIPayload(){const btn=document.getElementById('gen-btn');btn.innerHTML='<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> GENERATING...';btn.disabled=true;try{const r=await fetch('/api/v1/campaigns/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({department:document.getElementById('dept-select').value,urgency:currentUrgency,psychological_vector:currentVector})});const d=await r.json();document.getElementById('ai-subject').textContent=d.subject_line;document.getElementById('attack-type').textContent=d.attack_type;document.getElementById('strategy-text').textContent=d.social_engineering_strategy;const si=document.getElementById('si-badge');si.textContent=d.sophistication_index+'/10';si.style.color=d.sophistication_index>=8?'#ef4444':d.sophistication_index>=5?'#f59e0b':'#3b82f6';if(d.dna){document.getElementById('dna-fear').textContent=d.dna.fear+'%';document.getElementById('dna-bar-fear').style.width=d.dna.fear+'%';document.getElementById('dna-urgency').textContent=d.dna.urgency+'%';document.getElementById('dna-bar-urgency').style.width=d.dna.urgency+'%';document.getElementById('dna-authority').textContent=d.dna.authority+'%';document.getElementById('dna-bar-authority').style.width=d.dna.authority+'%';document.getElementById('dna-greed').textContent=d.dna.greed+'%';document.getElementById('dna-bar-greed').style.width=d.dna.greed+'%';}const b=document.getElementById('ai-body');b.textContent='';let i=0;const t=setInterval(()=>{if(i<d.body_content.length)b.textContent+=d.body_content.charAt(i++);else clearInterval(t)},5);const l=document.getElementById('launch-btn');l.disabled=false;l.className='w-full py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest border border-emerald-500/40 bg-emerald-600/15 text-emerald-400 hover:bg-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer'}catch(e){}btn.innerHTML='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Generate AI Payload';btn.disabled=false}
 
 // ═══ LAUNCH ═══
 async function launchSimulation(){const btn=document.getElementById('launch-btn');btn.innerHTML='<span class="w-2 h-2 bg-white rounded-full animate-ping mr-2"></span>RUNNING...';btn.disabled=true;document.getElementById('telemetry-feed').innerHTML='<div class="text-blue-400 font-mono text-xs animate-pulse">⚡ Campaign active...</div>';switchTab('dashboard');await fetch('/api/v1/campaigns/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({department:document.getElementById('dept-select').value,psychological_vector:currentVector})});setTimeout(()=>{btn.innerHTML='<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Execute Simulation';btn.disabled=false},5000)}
@@ -375,13 +425,22 @@ function triggerPhishingAlert(){document.getElementById('phishing-warning').clas
 // ═══ DEMO MODE ═══
 async function startDemoMode(){const btn=document.getElementById('demo-mode-btn');btn.disabled=true;btn.textContent='⚡ RUNNING...';switchTab('dashboard');await fetch('/api/v1/demo/start',{method:'POST'});setTimeout(()=>{btn.disabled=false;btn.textContent='⚡ Demo Mode'},30000)}
 
-// ═══ QUIZ ═══
-function answerQuiz(c,btn){const fb=document.getElementById('quiz-feedback'),nb=document.getElementById('next-q-btn');document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);if(c){btn.className+=' border-emerald-500/50 bg-emerald-900/20 text-emerald-300';fb.className='mt-3 p-3 rounded-lg text-xs bg-emerald-900/20 border border-emerald-500/20 text-emerald-300';fb.textContent='✅ Correct! Always report suspicious emails and verify domains independently.'}else{btn.className+=' border-red-500/50 bg-red-900/20 text-red-300';fb.className='mt-3 p-3 rounded-lg text-xs bg-red-900/20 border border-red-500/20 text-red-300';fb.textContent='❌ Incorrect. Report suspicious emails to IT Security immediately.'}fb.classList.remove('hidden');nb.classList.remove('hidden')}
-function nextQuestion(){document.getElementById('quiz-feedback').classList.add('hidden');document.getElementById('next-q-btn').classList.add('hidden');document.querySelectorAll('#quiz-options button').forEach(b=>{b.disabled=false;b.className='w-full text-left px-3 py-2.5 rounded-lg border border-white/5 bg-white/[0.02] text-xs text-gray-300 hover:border-blue-500/30 transition-all'});document.getElementById('quiz-question').textContent='CEO emails you: "Transfer $12,000 to vendor account ASAP." Sender: ceo@acmecorp-directive.com. What do you do?'}
+// ═══ QUIZ (Multi-Question from API) ═══
+let quizIndex=0,quizScore=0,quizTotal=0;
+async function loadQuiz(){
+    try{const r=await fetch(`/api/v1/quiz/question?index=${quizIndex}`);const q=await r.json();
+    document.getElementById('quiz-question').textContent=q.question;
+    const opts=document.getElementById('quiz-options');opts.innerHTML='';
+    q.options.forEach((o,i)=>{const b=document.createElement('button');b.className='w-full text-left px-3 py-2.5 rounded-lg border border-white/5 bg-white/[0.02] text-xs text-gray-300 hover:border-blue-500/30 transition-all';b.textContent=o;b.onclick=()=>answerQuiz(i===q.correct,b,q.explanation);opts.appendChild(b)});
+    document.getElementById('quiz-feedback').classList.add('hidden');document.getElementById('next-q-btn').classList.add('hidden');
+    }catch(e){/* fallback to hardcoded */}}
+function answerQuiz(c,btn,explanation){const fb=document.getElementById('quiz-feedback'),nb=document.getElementById('next-q-btn');quizTotal++;document.querySelectorAll('#quiz-options button').forEach(b=>b.disabled=true);if(c){quizScore++;btn.className+=' border-emerald-500/50 bg-emerald-900/20 text-emerald-300';fb.className='mt-3 p-3 rounded-lg text-xs bg-emerald-900/20 border border-emerald-500/20 text-emerald-300';fb.textContent='✅ Correct! '+(explanation||'Always report suspicious emails and verify domains independently.')}else{btn.className+=' border-red-500/50 bg-red-900/20 text-red-300';fb.className='mt-3 p-3 rounded-lg text-xs bg-red-900/20 border border-red-500/20 text-red-300';fb.textContent='❌ Incorrect. '+(explanation||'Report suspicious emails to IT Security immediately.')}fb.classList.remove('hidden');nb.classList.remove('hidden')}
+function nextQuestion(){quizIndex++;loadQuiz()}
+loadQuiz();
 
 // ═══ CHATBOT ═══
 function toggleChatbot(){document.getElementById('chatbot-panel').classList.toggle('open')}
-async function sendChat(){const input=document.getElementById('chat-input'),msg=input.value.trim();if(!msg)return;input.value='';const msgs=document.getElementById('chat-messages');msgs.innerHTML+=`<div class="chat-msg user">${msg}</div>`;msgs.scrollTop=msgs.scrollHeight;try{const r=await fetch('/api/v1/chatbot/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});const d=await r.json();const botDiv=document.createElement('div');botDiv.className='chat-msg bot';msgs.appendChild(botDiv);let i=0;const t=setInterval(()=>{if(i<d.reply.length){botDiv.textContent+=d.reply.charAt(i++);msgs.scrollTop=msgs.scrollHeight}else clearInterval(t)},8)}catch(e){msgs.innerHTML+=`<div class="chat-msg bot">⚠️ Connection error.</div>`}}
+async function sendChat(){const input=document.getElementById('chat-input'),msg=input.value.trim();if(!msg)return;input.value='';const msgs=document.getElementById('chat-messages');msgs.innerHTML+=`<div class="chat-msg user">${msg}</div>`;const typingDiv=document.createElement('div');typingDiv.className='chat-msg bot typing-dots';typingDiv.innerHTML='<span>.</span><span>.</span><span>.</span>';msgs.appendChild(typingDiv);msgs.scrollTop=msgs.scrollHeight;try{const r=await fetch('/api/v1/chatbot/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});const d=await r.json();setTimeout(()=>{typingDiv.remove();const botDiv=document.createElement('div');botDiv.className='chat-msg bot';msgs.appendChild(botDiv);let i=0;const t=setInterval(()=>{if(i<d.reply.length){botDiv.textContent+=d.reply.charAt(i++);msgs.scrollTop=msgs.scrollHeight}else clearInterval(t)},8)},600)}catch(e){typingDiv.remove();msgs.innerHTML+=`<div class="chat-msg bot">⚠️ Connection error.</div>`}}
 
 // ═══ STATUS COLORS ═══
 function sc(s){switch(s){case'info':return'text-blue-400 border-blue-500/20 bg-blue-900/10';case'warning':return'text-amber-400 border-amber-500/20 bg-amber-900/10';case'danger':return'text-red-400 border-red-500/20 bg-red-900/10';case'success':return'text-emerald-400 border-emerald-500/20 bg-emerald-900/10';default:return'text-gray-400 border-gray-700/30 bg-gray-900/10'}}
@@ -391,7 +450,15 @@ async function updateDashboard(){try{const[tR,aR,rR,lR,eR]=await Promise.all([fe
 document.getElementById('stat-resilience').textContent=an.overall_resilience.toFixed(1);document.getElementById('stat-creds').textContent=an.total_credentials;document.getElementById('stat-reported').textContent=an.total_reported;document.getElementById('stat-campaigns').textContent=an.campaigns_run;document.getElementById('stat-sent').textContent=an.total_sent;document.getElementById('org-risk-score').textContent=an.org_risk_score;document.getElementById('stat-employees').textContent=an.total_employees;document.getElementById('stat-vulnerable').textContent=an.vulnerable_count;
 const cr=an.total_sent>0?((an.total_clicks/an.total_sent)*100).toFixed(1):'0.0';document.getElementById('stat-clicks').textContent=cr+'%';
 const r=an.overall_resilience,st=document.getElementById('resilience-status');st.textContent=r>80?'NOMINAL':r>60?'DEGRADED':r>40?'CRITICAL':'BREACH IMMINENT';st.style.color=r>80?'#10b981':r>60?'#f59e0b':'#ef4444';
-document.getElementById('flow-delivered').textContent=an.total_sent;document.getElementById('flow-clicks').textContent=an.total_clicks;document.getElementById('flow-creds').textContent=an.total_credentials;document.getElementById('flow-reported').textContent=an.total_reported;
+const pA=(id)=>{document.getElementById(`prop-icon-${id}`).className='w-8 h-8 rounded-full bg-red-900/40 border border-red-500/30 flex items-center justify-center text-xs glow-red';document.getElementById(`prop-text-${id}`).className='text-[9px] text-red-400 font-mono text-center mt-1 font-bold'};
+const cA=(id)=>{document.getElementById(`conn-${id}`).style.background='linear-gradient(90deg, rgba(239,68,68,0.5), rgba(245,158,11,0.5))'};
+const pR=(id, i)=>{document.getElementById(`prop-icon-${id}`).className='w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs opacity-50';document.getElementById(`prop-text-${id}`).className='text-[9px] text-gray-600 font-mono text-center mt-1'};
+const cR=(id)=>{document.getElementById(`conn-${id}`).style.background='rgba(255,255,255,0.1)'};
+if(an.total_sent>0){document.getElementById('prop-icon-1').className='w-8 h-8 rounded-full bg-blue-900/40 border border-blue-500/30 flex items-center justify-center text-xs glow-blue';document.getElementById('prop-text-1').className='text-[9px] text-blue-400 font-mono text-center mt-1 font-bold'}else{document.getElementById('prop-icon-1').className='w-8 h-8 rounded-full bg-black border border-white/10 flex items-center justify-center text-xs opacity-50';document.getElementById('prop-text-1').className='text-[9px] text-gray-600 font-mono text-center mt-1'}
+if(an.total_clicks>0){pA(2);cA(1)}else{pR(2);cR(1)}
+if(an.total_credentials>0){pA(3);cA(2)}else{pR(3);cR(2)}
+if(an.total_credentials>2){pA(4);cA(3)}else{pR(4);cR(3)}
+if(an.total_credentials>4){pA(5);cA(4);document.getElementById('prop-status-badge').textContent='BREACHED';document.getElementById('prop-status-badge').style='background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)';}else{pR(5);cR(4);document.getElementById('prop-status-badge').textContent='CONTAINED';document.getElementById('prop-status-badge').style='background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2)';}
 const depts=['Finance','HR','Engineering','Sales','Legal','Marketing'];riskChart.data.datasets[0].data=depts.map(d=>an.department_risk[d]||0);riskChart.update('none');
 document.getElementById('dept-bars').innerHTML=depts.map(d=>{const risk=(an.department_risk[d]||0).toFixed(1),pct=Math.min(100,risk),col=pct>70?'#ef4444':pct>40?'#f59e0b':'#10b981';return`<div><div class="flex justify-between text-[10px] mb-1"><span class="text-gray-400">${d}</span><span class="font-mono font-bold" style="color:${col}">${risk}</span></div><div class="risk-bar"><div class="risk-fill" style="width:${pct}%;background:${col}"></div></div></div>`}).join('');
 if(tel.length>0){document.getElementById('telemetry-feed').innerHTML=tel.slice(0,50).map(t=>`<div class="stream-item p-1.5 rounded border ${sc(t.status)} flex items-center justify-between gap-2 mb-0.5"><span class="text-gray-600 shrink-0 text-[9px]">${t.time}</span><span class="font-bold text-gray-300 truncate flex-1">${t.user}</span><span class="text-[7px] text-gray-600 bg-black/30 px-1 rounded uppercase shrink-0">${t.dept}</span><span class="text-[9px] uppercase font-bold shrink-0">${t.action}</span></div>`).join('')}
@@ -402,13 +469,21 @@ if(tr.length>0){document.getElementById('top-risk-list').innerHTML=tr.map(e=>{co
 
 // ═══ DEFENSIVE ═══
 async function updateDefensive(){if(document.getElementById('view-guardian').classList.contains('hidden'))return;try{const[sR,stR]=await Promise.all([fetch('/api/v1/defense/stream'),fetch('/api/v1/defense/stats')]);const[stream,stats]=await Promise.all([sR.json(),stR.json()]);if(!stream.length)return;
-document.getElementById('defensive-scan-table').innerHTML=stream.map(t=>{let b='bg-emerald-900/20 text-emerald-400 border border-emerald-500/30';if(t.classification==='HIGH_RISK_SPAM')b='bg-red-900/20 text-red-400 border border-red-500/30';if(t.classification==='SUSPICIOUS')b='bg-amber-900/20 text-amber-400 border border-amber-500/30';return`<tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors stream-item"><td class="py-2 pr-3 text-gray-600 text-[10px]">${t.time}</td><td class="py-2 pr-3 text-gray-300 text-[10px] truncate max-w-[100px]">${t.sender}</td><td class="py-2 pr-3 text-gray-400 text-[10px] truncate max-w-[120px]">${t.subject}</td><td class="py-2 pr-3 text-center text-[10px] text-gray-500">${t.domain_age}d</td><td class="py-2 pr-3 text-center text-[10px] text-blue-400 font-mono">${t.structural_score}</td><td class="py-2 text-right"><span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold ${b}">${t.classification}</span></td></tr>`}).join('');
+document.getElementById('defensive-scan-table').innerHTML=stream.map((t,idx)=>{let b='bg-emerald-900/20 text-emerald-400 border border-emerald-500/30 glow-badge-green';if(t.classification==='HIGH_RISK_SPAM')b='bg-red-900/20 text-red-400 border border-red-500/30 glow-badge-red';if(t.classification==='SUSPICIOUS')b='bg-amber-900/20 text-amber-400 border border-amber-500/30 glow-badge-amber';return`<tr class="border-b border-white/5 transition-colors stream-item inbox-row-clickable" onclick="selectInboxRow(this,${idx})" data-idx="${idx}" data-classification="${t.classification}" data-sender="${t.sender}" data-subject="${t.subject||''}" data-reasoning="${(t.reasoning||'').replace(/"/g,'&quot;')}" data-age="${t.domain_age}" data-score="${t.structural_score}"><td class="py-2 pr-3 text-gray-600 text-[10px]">${t.time}</td><td class="py-2 pr-3 text-gray-300 text-[10px] truncate max-w-[100px]">${t.sender}</td><td class="py-2 pr-3 text-gray-400 text-[10px] truncate max-w-[120px]">${t.subject}</td><td class="py-2 pr-3 text-center text-[10px] text-gray-500">${t.domain_age}d</td><td class="py-2 pr-3 text-center text-[10px] text-blue-400 font-mono">${t.structural_score}</td><td class="py-2 text-right"><span class="px-2 py-0.5 rounded text-[9px] uppercase font-bold ${b}">${t.classification}</span></td></tr>`}).join('');
 document.getElementById('def-safe').textContent=stats.safe;document.getElementById('def-suspicious').textContent=stats.suspicious;document.getElementById('def-threat').textContent=stats.critical;
 const l=stream[0];if(l.reasoning!==lastDefReason){lastDefReason=l.reasoning;const bn=document.getElementById('threat-banner');if(l.classification==='HIGH_RISK_SPAM'){bn.className='glass p-5 flex items-center justify-center border-l-4 border-red-500 bg-red-900/10 transition-all duration-500 glow-red';bn.innerHTML=`<div class="text-center animate-pulse"><div class="text-[9px] text-red-400 uppercase tracking-widest mb-2 font-mono">Threat Status</div><div class="text-2xl font-bold font-mono text-red-400">⚠️ CRITICAL</div><div class="text-[10px] text-red-600 mt-1">Zero-Day Phishing</div></div>`}else if(l.classification==='SUSPICIOUS'){bn.className='glass p-5 flex items-center justify-center border-l-4 border-amber-500 bg-amber-900/10 transition-all duration-500 glow-amber';bn.innerHTML=`<div class="text-center"><div class="text-[9px] text-amber-400 uppercase tracking-widest mb-2 font-mono">Threat Status</div><div class="text-2xl font-bold font-mono text-amber-400">⚡ SUSPICIOUS</div><div class="text-[10px] text-amber-600 mt-1">Anomaly Detected</div></div>`}else{bn.className='glass p-5 flex items-center justify-center border-l-4 border-emerald-500 bg-emerald-900/5 transition-all duration-500 glow-green';bn.innerHTML=`<div class="text-center"><div class="text-[9px] text-emerald-400 uppercase tracking-widest mb-2 font-mono">Threat Status</div><div class="text-2xl font-bold font-mono text-emerald-400">✅ SECURE</div><div class="text-[10px] text-emerald-700 mt-1">Verified</div></div>`}
 const re=document.getElementById('defensive-reasoning');re.textContent='';let i=0;const t=setInterval(()=>{if(i<l.reasoning.length){re.textContent+=l.reasoning.charAt(i++)}else clearInterval(t)},15)}}catch(e){}}
 
 // ═══ AI INSIGHT ═══
 async function rotateInsight(){try{const r=await fetch('/api/v1/insights/next');const d=await r.json();const el=document.getElementById('insight-ticker');el.textContent='🤖 '+d.insight;el.style.animation='none';el.offsetHeight;el.style.animation='ticker-slide 30s linear infinite';document.getElementById('ai-insight-text').textContent=d.insight}catch(e){}}
+
+// ═══ INBOX ROW CLICK ═══
+function selectInboxRow(row,idx){document.querySelectorAll('.inbox-row-clickable').forEach(r=>r.classList.remove('inbox-row-selected'));row.classList.add('inbox-row-selected');const cls=row.dataset.classification,sender=row.dataset.sender,reason=row.dataset.reasoning,age=row.dataset.age,score=row.dataset.score;const bn=document.getElementById('threat-banner');if(cls==='HIGH_RISK_SPAM'){bn.className='glass p-5 flex items-center justify-center border-l-4 border-red-500 bg-red-900/10 transition-all duration-500 glow-red';bn.innerHTML=`<div class="text-center animate-pulse"><div class="text-[9px] text-red-400 uppercase tracking-widest mb-2 font-mono">Threat Status</div><div class="text-2xl font-bold font-mono text-red-400">⚠️ CRITICAL</div><div class="text-[10px] text-red-600 mt-1">${sender}</div></div>`}else if(cls==='SUSPICIOUS'){bn.className='glass p-5 flex items-center justify-center border-l-4 border-amber-500 bg-amber-900/10 transition-all duration-500 glow-amber';bn.innerHTML=`<div class="text-center"><div class="text-[9px] text-amber-400 uppercase tracking-widest mb-2 font-mono">Threat Status</div><div class="text-2xl font-bold font-mono text-amber-400">⚡ SUSPICIOUS</div><div class="text-[10px] text-amber-600 mt-1">${sender}</div></div>`}else{bn.className='glass p-5 flex items-center justify-center border-l-4 border-emerald-500 bg-emerald-900/5 transition-all duration-500 glow-green';bn.innerHTML=`<div class="text-center"><div class="text-[9px] text-emerald-400 uppercase tracking-widest mb-2 font-mono">Threat Status</div><div class="text-2xl font-bold font-mono text-emerald-400">✅ SECURE</div><div class="text-[10px] text-emerald-700 mt-1">Verified Safe</div></div>`}
+const spfResult=cls==='SAFE'?'PASS':'FAIL',dkimResult=cls==='HIGH_RISK_SPAM'?'FAIL':'PASS',dmarcResult=cls==='SAFE'?'PASS (reject)':'NONE';
+const re=document.getElementById('defensive-reasoning');re.innerHTML=`<div class="text-[9px] text-gray-600 uppercase mb-2 font-mono">FORENSIC ANALYSIS</div><div class="text-xs text-gray-300 leading-relaxed mb-2">${reason}</div><div class="space-y-1 mt-3 pt-2 border-t border-white/5"><div class="text-[9px] font-mono"><span class="text-gray-500">SPF:</span> <span class="${spfResult==='PASS'?'text-emerald-400':'text-red-400'} font-bold">${spfResult}</span></div><div class="text-[9px] font-mono"><span class="text-gray-500">DKIM:</span> <span class="${dkimResult==='PASS'?'text-emerald-400':'text-red-400'} font-bold">${dkimResult}</span></div><div class="text-[9px] font-mono"><span class="text-gray-500">DMARC:</span> <span class="${dmarcResult.includes('PASS')?'text-emerald-400':'text-amber-400'} font-bold">${dmarcResult}</span></div><div class="text-[9px] font-mono"><span class="text-gray-500">Domain Age:</span> <span class="${parseInt(age)<30?'text-red-400':'text-emerald-400'} font-bold">${age} days</span></div><div class="text-[9px] font-mono"><span class="text-gray-500">Structural Score:</span> <span class="text-blue-400 font-bold">${score}/100</span></div></div>`;}
+
+// ═══ KEYBOARD SHORTCUTS ═══
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='d'||e.key==='D'){e.preventDefault();startDemoMode()}if(e.key==='c'||e.key==='C'){e.preventDefault();toggleChatbot()}});
 
 // ═══ POLLING ═══
 setInterval(updateDashboard,1000);setInterval(updateDefensive,3000);setInterval(rotateInsight,12000);

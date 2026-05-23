@@ -12,7 +12,7 @@ import uvicorn
 import os
 import json
 
-app = FastAPI(title="PhishShield AI - Enterprise Cyber Defense Platform")
+app = FastAPI(title="PhishShield AI - AI-Powered Human Firewall Intelligence Platform")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
@@ -101,6 +101,64 @@ CHATBOT_RESPONSES = {
     "default": "I'm PhishShield AI's security assistant. I can help with:\n\n🔹 **Phishing** — What it is and how to spot it\n🔹 **Spear Phishing** — Targeted attacks\n🔹 **BEC** — Business Email Compromise\n🔹 **Passwords** — Best practices\n🔹 **Reporting** — How to report threats\n🔹 **Social Engineering** — Psychological tactics\n🔹 **MFA** — Multi-factor authentication\n\nType any topic or question to learn more!"
 }
 
+QUIZ_BANK = [
+    {
+        "question": "You receive an email from 'security-alert@corp-audit-internal.com' with the subject 'URGENT: Account suspended in 15 min'. What do you do?",
+        "options": [
+            "A. Click the link immediately",
+            "B. Forward to warn colleagues",
+            "C. Report to IT Security & verify domain",
+            "D. Delete and ignore"
+        ],
+        "correct": 2,
+        "explanation": "Always report suspicious emails to IT Security and verify the domain independently. The domain 'corp-audit-internal.com' is not your company's domain."
+    },
+    {
+        "question": "CEO emails you: 'Transfer $12,000 to vendor account ASAP.' Sender: ceo@acmecorp-directive.com. What do you do?",
+        "options": [
+            "A. Transfer immediately — it's the CEO",
+            "B. Reply asking for confirmation",
+            "C. Call the CEO directly on their known phone number to verify",
+            "D. Forward to your manager"
+        ],
+        "correct": 2,
+        "explanation": "Always verify financial requests through a separate, trusted communication channel. The domain 'acmecorp-directive.com' is a lookalike domain, not the real company domain."
+    },
+    {
+        "question": "You receive a text: 'Your package delivery failed. Click here to reschedule.' You aren't expecting a package. What do you do?",
+        "options": [
+            "A. Click to check — it might be a surprise gift",
+            "B. Delete the message immediately",
+            "C. Go to the delivery company's official website directly",
+            "D. Reply STOP to unsubscribe"
+        ],
+        "correct": 2,
+        "explanation": "Never click links in unexpected texts. Go directly to the delivery company's official website or app to check status. This is a classic smishing (SMS phishing) attack."
+    },
+    {
+        "question": "A pop-up says: 'Your computer is infected! Call Microsoft Support at 1-800-XXX.' What do you do?",
+        "options": [
+            "A. Call the number immediately",
+            "B. Close the browser and run your antivirus",
+            "C. Download the suggested cleanup tool",
+            "D. Give them remote access to fix it"
+        ],
+        "correct": 1,
+        "explanation": "This is a tech support scam. Microsoft will never show pop-ups with phone numbers. Close the browser (use Task Manager if needed) and run a legitimate antivirus scan."
+    },
+    {
+        "question": "A colleague's email asks you to review an attached 'Q4_Report.xlsm' file. The email seems slightly off. What do you do?",
+        "options": [
+            "A. Open it — it's from a colleague",
+            "B. Enable macros when prompted to view the report",
+            "C. Contact your colleague through another channel to verify they sent it",
+            "D. Save it to your desktop for later"
+        ],
+        "correct": 2,
+        "explanation": "Files ending in .xlsm contain macros that can execute malicious code. Always verify unexpected attachments through a separate channel. The colleague's account may have been compromised."
+    }
+]
+
 # ═══════════════════════════════════════════════════════════
 # STATE MANAGEMENT
 # ═══════════════════════════════════════════════════════════
@@ -171,12 +229,19 @@ class CampaignGenRequest(BaseModel):
     urgency: str
     psychological_vector: str
 
+class PhishingDNA(BaseModel):
+    fear: int
+    urgency: int
+    authority: int
+    greed: int
+
 class AIGeneratedTemplate(BaseModel):
     subject_line: str
     body_content: str
     sophistication_index: int
     attack_type: str
     social_engineering_strategy: str
+    dna: Optional[PhishingDNA] = None
 
 class LaunchRequest(BaseModel):
     department: str
@@ -310,12 +375,22 @@ Sent from my iPhone
 async def generate_campaign(req: CampaignGenRequest):
     template = PHISHING_TEMPLATES.get(req.psychological_vector, PHISHING_TEMPLATES["Fear"])
     si_map = {"Low": 4, "Medium": 7, "Critical": 9}
+    
+    dna_map = {
+        "Fear": {"fear": 85, "urgency": 70, "authority": 40, "greed": 10},
+        "Greed": {"fear": 10, "urgency": 60, "authority": 20, "greed": 95},
+        "Urgency": {"fear": 30, "urgency": 90, "authority": 50, "greed": 20},
+        "Authority": {"fear": 40, "urgency": 60, "authority": 95, "greed": 5}
+    }
+    dna_vals = dna_map.get(req.psychological_vector, {"fear": 50, "urgency": 50, "authority": 50, "greed": 50})
+    
     return AIGeneratedTemplate(
         subject_line=template["subject"].replace("{dept}", req.department),
         body_content=template["body"].replace("{dept}", req.department),
         sophistication_index=si_map.get(req.urgency, 5),
         attack_type=template["attack_type"],
-        social_engineering_strategy=template["strategy"]
+        social_engineering_strategy=template["strategy"],
+        dna=PhishingDNA(**dna_vals)
     )
 
 # ═══════════════════════════════════════════════════════════
@@ -556,8 +631,27 @@ async def chatbot_reply(msg: ChatMessage):
         return {"reply": CHATBOT_RESPONSES["social"]}
     elif any(k in query for k in ["mfa", "2fa", "multi-factor", "authenticat"]):
         return {"reply": CHATBOT_RESPONSES["mfa"]}
+    elif any(k in query for k in ["vishing", "voice", "phone call", "smishing", "sms"]):
+        return {"reply": "📞 **Vishing & Smishing:**\n\nVishing (voice phishing) uses phone calls to trick victims. Smishing uses SMS text messages.\n\n**Common vishing tactics:**\n• Fake bank fraud alerts\n• IRS/tax scam calls\n• Tech support impersonation\n• Fake prize winnings\n\n**Common smishing tactics:**\n• Package delivery notifications\n• Bank account alerts\n• Prize/lottery messages\n\n**Defense:** Never give personal info over unsolicited calls. Hang up and call the organization directly using their official number."}
+    elif any(k in query for k in ["ransomware", "ransom", "encrypt", "malware"]):
+        return {"reply": "🔒 **Ransomware:**\n\nRansomware is malware that encrypts your files and demands payment for the decryption key.\n\n**How it spreads:**\n• Phishing email attachments (.exe, .zip, .docm)\n• Drive-by downloads from compromised sites\n• RDP brute-force attacks\n• Supply chain compromises\n\n**Prevention:**\n• Regular offline backups (3-2-1 rule)\n• Patch systems promptly\n• Disable macros in Office docs\n• Use endpoint detection (EDR)\n• Network segmentation\n\n**If infected:** Isolate the machine immediately. Do NOT pay the ransom. Contact your security team and law enforcement."}
+    elif any(k in query for k in ["zero-day", "zero day", "0day", "exploit", "vulnerability"]):
+        return {"reply": "💀 **Zero-Day Exploits:**\n\nA zero-day is a software vulnerability unknown to the vendor, giving them 'zero days' to fix it before exploitation.\n\n**Why they matter:**\n• No patch exists yet\n• Traditional antivirus can't detect them\n• Often sold on dark web for $50K-$2.5M\n• Used in advanced persistent threats (APTs)\n\n**Protection strategies:**\n• Behavior-based detection (EDR/XDR)\n• Network anomaly monitoring\n• Application sandboxing\n• Principle of least privilege\n• Regular security assessments"}
+    elif any(k in query for k in ["spoofing", "spoof", "impersonat", "fake domain"]):
+        return {"reply": "🎭 **Email Spoofing:**\n\nSpoofing forges the 'From' address to make emails appear from trusted senders.\n\n**Types of spoofing:**\n• Display name spoofing (easiest)\n• Domain spoofing (blocked by SPF/DKIM)\n• Lookalike domains (acmecorp vs acrnecorp)\n• Reply-to manipulation\n\n**Detection:**\n• Check full email headers\n• Verify SPF, DKIM, and DMARC records\n• Hover over sender address\n• Look for typosquatting in domains\n\n**Prevention:** Implement DMARC with 'reject' policy. Train employees to inspect sender details."}
+    elif any(k in query for k in ["whaling", "executive", "cxo", "ceo"]):
+        return {"reply": "🐋 **Whaling Attacks:**\n\nWhaling targets C-suite executives and senior leaders with highly personalized attacks.\n\n**Why executives are targeted:**\n• Authority to approve large transfers\n• Access to sensitive strategic data\n• Often bypass security controls\n• Public profiles make research easy\n\n**Common whaling scenarios:**\n• Fake legal subpoenas\n• Board meeting document lures\n• M&A-related urgent requests\n• Tax filing fraud\n\n**Defense:** Implement out-of-band verification for all financial requests. Limit executive email metadata exposure."}
+    elif any(k in query for k in ["train", "aware", "learn", "education"]):
+        return {"reply": "📚 **Security Awareness Training:**\n\nEffective training programs reduce phishing click rates by up to 75%.\n\n**Best practices:**\n• Regular simulated phishing campaigns\n• Bite-sized micro-learning modules\n• Role-specific training content\n• Gamification (badges, leaderboards)\n• Immediate feedback on failures\n• Positive reinforcement, not punishment\n\n**PhishShield AI approach:** We use adaptive AI to customize training based on each employee's specific vulnerabilities, ensuring the most relevant content is delivered at the right time."}
+    elif any(k in query for k in ["help", "what can", "how do", "explain"]):
+        return {"reply": CHATBOT_RESPONSES["default"]}
     else:
         return {"reply": CHATBOT_RESPONSES["default"]}
+
+@app.get("/api/v1/quiz/question")
+async def get_quiz_question(index: int = 0):
+    q = QUIZ_BANK[index % len(QUIZ_BANK)]
+    return q
 
 # ═══════════════════════════════════════════════════════════
 # DEFENSIVE INBOX GUARDIAN
