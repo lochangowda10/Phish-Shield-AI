@@ -620,7 +620,7 @@ async def get_gemini_reply(user_message: str) -> Optional[str]:
     if not api_key:
         return None
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     system_instruction = (
         "You are PhishShield AI's security assistant, a premium cyber-psychology and security awareness chatbot. "
         "Help the user understand social engineering, phishing (spear phishing, BEC, vishing, smishing), password security, "
@@ -727,7 +727,7 @@ async def debug_env():
                 except:
                     pass
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={key}"
         payload = {
             "contents": [{"parts": [{"text": "Hello"}]}]
         }
