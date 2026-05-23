@@ -711,7 +711,22 @@ async def debug_env():
     key = os.environ.get("GEMINI_API_KEY", "")
     api_test_result = "not_run"
     api_error = None
+    models_available = []
     if key:
+        url_models = f"https://generativelanguage.googleapis.com/v1beta/models?key={key}"
+        try:
+            req_m = urllib.request.Request(url_models, method="GET")
+            with urllib.request.urlopen(req_m, timeout=5) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                models_available = [m["name"] for m in res_data.get("models", [])]
+        except Exception as e:
+            models_available = [f"Error: {e}"]
+            if hasattr(e, 'read'):
+                try:
+                    models_available.append(e.read().decode('utf-8'))
+                except:
+                    pass
+
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
         payload = {
             "contents": [{"parts": [{"text": "Hello"}]}]
@@ -740,7 +755,8 @@ async def debug_env():
         "key_length": len(key),
         "key_prefix": key[:4] if len(key) > 4 else "",
         "api_test_result": api_test_result,
-        "api_error": api_error
+        "api_error": api_error,
+        "models_available": models_available
     }
 
 
