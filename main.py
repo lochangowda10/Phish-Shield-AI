@@ -11,6 +11,7 @@ from pydantic import BaseModel
 import uvicorn
 import os
 import json
+import urllib.request
 
 app = FastAPI(title="PhishShield AI - AI-Powered Human Firewall Intelligence Platform")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -613,9 +614,61 @@ async def get_dept_comparison():
 # ═══════════════════════════════════════════════════════════
 # AI CHATBOT
 # ═══════════════════════════════════════════════════════════
+# Helper to fetch reply from Gemini API if GEMINI_API_KEY is configured
+async def get_gemini_reply(user_message: str) -> Optional[str]:
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return None
+    
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    system_instruction = (
+        "You are PhishShield AI's security assistant, a premium cyber-psychology and security awareness chatbot. "
+        "Help the user understand social engineering, phishing (spear phishing, BEC, vishing, smishing), password security, "
+        "MFA, and incident reporting. "
+        "Keep your responses concise, highly informative, formatted in clean Markdown, and use bullet points and cyber emojis where appropriate."
+    )
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": user_message}
+                ]
+            }
+        ],
+        "systemInstruction": {
+            "parts": [
+                {"text": system_instruction}
+            ]
+        }
+    }
+    try:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        loop = asyncio.get_event_loop()
+        def do_request():
+            with urllib.request.urlopen(req, timeout=8) as response:
+                return response.read().decode("utf-8")
+        res_data = await loop.run_in_executor(None, do_request)
+        res_json = json.loads(res_data)
+        reply = res_json['candidates'][0]['content']['parts'][0]['text']
+        return reply
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return None
+
 @app.post("/api/v1/chatbot/message")
 async def chatbot_reply(msg: ChatMessage):
     query = msg.message.lower().strip()
+    
+    # Try calling Gemini first
+    gemini_reply = await get_gemini_reply(msg.message)
+    if gemini_reply:
+        return {"reply": gemini_reply}
+        
     # Match keywords to responses
     if any(k in query for k in ["phish", "what is phish", "identify"]):
         return {"reply": CHATBOT_RESPONSES["phishing"]}
